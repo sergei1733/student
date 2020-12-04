@@ -1,0 +1,40 @@
+package com.company.studentOrder.domain;
+
+public class PassportOffice {
+    private long officeId;
+    private String officeAresId;
+    private String officeName;
+
+    public PassportOffice() {
+    }
+
+    public PassportOffice(long officeId, String officeAresId, String officeName) {
+        this.officeId = officeId;
+        this.officeAresId = officeAresId;
+        this.officeName = officeName;
+    }
+
+    public long getOfficeId() {
+        return officeId;
+    }
+
+    public void setOfficeId(long officeId) {
+        this.officeId = officeId;
+    }
+
+    public String getOfficeAresId() {
+        return officeAresId;
+    }
+
+    public void setOfficeAresId(String officeAresId) {
+        this.officeAresId = officeAresId;
+    }
+
+    public String getOfficeName() {
+        return officeName;
+    }
+
+    public void setOfficeName(String officeName) {
+        this.officeName = officeName;
+    }
+}
