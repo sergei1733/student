@@ -119,7 +119,7 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
         so.setStudentOrderDate(rs.getTimestamp("student_order_date").toLocalDateTime());
         so.setStudentOrderStatus(StudentOrderStatus.fromValue(rs.getInt("student_order_status")));
     }
-    private void fillMarriage(ResultSet rs, StudentOrder so) {
+    private void fillMarriage(ResultSet rs, StudentOrder so) throws SQLException {
         so.setMarriageCertificateId(rs.getString("certificate_id"));
         so.setMarriageDate(rs.getDate(""));
     }
