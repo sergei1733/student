@@ -44,16 +44,15 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
             "select * from jc_student_order where student_orderStatus = 0 ORDER BY student_order_date";
 
     private Connection getConnection() throws SQLException {
-        Connection con = DriverManager.getConnection(
+        return DriverManager.getConnection(
                 Config.getProperties(Config.DB_URL),
                 Config.getProperties(Config.DB_LOGIN),
                 Config.getProperties(Config.DB_PASSWORD));
-        return con;
     }
 
     @Override
     public long saveStudentOrder(StudentOrder so) throws DaoException {
-        Long result = -1L;
+        long result = -1L;
         try (Connection con = getConnection();
              PreparedStatement stmt = con.prepareStatement(INSERT_ORDER,new String [] {"student_order_id"})) {
            con.setAutoCommit(false);//берем транзакцию в свои руки
@@ -96,7 +95,7 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
     }
 
     @Override
-    public List<StudentOrder> getStudentOrders() throws DaoException {
+    public List<StudentOrder> getStudentOrders() {
         List<StudentOrder> result = new LinkedList<>();
         try (Connection con = getConnection();
              PreparedStatement stmt = con.prepareStatement(SELECT_ORDERS)) {
@@ -108,7 +107,7 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
             }
             rs.close();
         }catch (SQLException ex) {
-            throw new DOMException(ex);
+  //          throw new DOMException(ex);
 
         }
         return result;
@@ -121,7 +120,7 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
     }
     private void fillMarriage(ResultSet rs, StudentOrder so) throws SQLException {
         so.setMarriageCertificateId(rs.getString("certificate_id"));
-        so.setMarriageDate(rs.getDate(""));
+       // so.setMarriageDate(rs.getDate(""));
     }
 
     private void saveChildren(Connection con, StudentOrder so, Long soId) throws SQLException {
