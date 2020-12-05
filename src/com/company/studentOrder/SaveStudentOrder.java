@@ -46,10 +46,15 @@ public class SaveStudentOrder {
         }
 
          */
-        StudentOrder s = buildStudentOrder(10);
+        //StudentOrder s = buildStudentOrder(10);
         StudentOrderDao dao = new StudentOrderDaoImpl();
-        Long id = dao.saveStudentOrder(s);
-        System.out.println(id);
+        //Long id = dao.saveStudentOrder(s);
+        //System.out.println(id);
+
+        List<StudentOrder> soList = dao.getStudentOrders();
+        for (StudentOrder so : soList){
+            System.out.println(so.getStudentOrderId());
+        }
         //Class.forName("org.postgresql.Driver");
         //Connection con = DriverManager.getConnection(
         //         "jdbc:postgresql://localhost:5432/jc_student",
