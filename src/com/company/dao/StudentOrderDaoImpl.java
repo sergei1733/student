@@ -41,7 +41,9 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
                     "VALUES ( ?, ?, ?, ?, ?, ?," +
                     "?, ?, ?, ?, ?, ?, ?);";
     private static final String SELECT_ORDERS =
-            "select * from jc_student_order where student_order_status = 0 ORDER BY student_order_date";
+            "select so.*, ro.r_office_area_id, ro.r_office_name from jc_student_order so " +
+                    "INNER JOIN jc_register_office ro ON ro.r_office_id = so.register_office_id"+
+                    "where student_order_status = 0 ORDER BY student_order_date";
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(
@@ -92,6 +94,54 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
         }
         return result;
 
+    }
+
+
+    private void saveChildren(Connection con, StudentOrder so, Long soId) throws SQLException {
+        try(PreparedStatement stmt = con.prepareStatement(INSERT_CHILD)) {
+            for (Child child : so.getChildren()) {
+                stmt.setLong(1,soId);
+                setParaForChild(stmt,child);
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+        }
+    }
+
+    private void setParamsForAdult(PreparedStatement stmt, int start, Adult adult) throws SQLException {
+        setParamsForPerson(stmt, start, adult);
+        stmt.setString(start+4,adult.getPassportSeria());
+        stmt.setString(start+5,adult.getPassportNumber());
+        stmt.setDate(start+6, Date.valueOf(adult.getIssueDate()));
+        stmt.setLong(start+7, adult.getIssueDepartment().getOfficeId());
+        setParamsForAddress(stmt, start+8, adult);
+        stmt.setLong(start+13,adult.getUnivesity().getUniversityId());
+        stmt.setString(start+14,adult.getStudentId());
+
+    }
+
+    private void setParaForChild(PreparedStatement stmt, Child child) throws SQLException{
+        setParamsForPerson(stmt,2,child);
+        stmt.setString(6, child.getCertificateNumber());
+        stmt.setDate(7,Date.valueOf(child.getIssueDate()));
+        stmt.setLong(8,child.getIssueDepartment().getOfficeId());
+        setParamsForAddress(stmt,9,child);
+    }
+
+    private void setParamsForPerson(PreparedStatement stmt, int start, Person person) throws SQLException {
+        stmt.setString(start, person.getSorName());
+        stmt.setString(start +1, person.getGivenName());
+        stmt.setString(start +2, person.getPatronymic());
+        stmt.setDate(start +3, Date.valueOf(person.getDate0fBirth()));
+    }
+
+    private void setParamsForAddress(PreparedStatement stmt, int start, Person person) throws SQLException {
+        Address h_address = person.getAddress();
+        stmt.setString(start,h_address.getPostCode());
+        stmt.setLong(start +1, h_address.getStreet().getStreetCode());
+        stmt.setString(start +2, h_address.getBuilding());
+        stmt.setString(start +3, h_address.getExtension());
+        stmt.setString(start +4, h_address.getApartment());
     }
 
     @Override
@@ -153,60 +203,16 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
         so.setStudentOrderDate(rs.getTimestamp("student_order_date").toLocalDateTime());
         so.setStudentOrderStatus(StudentOrderStatus.fromValue(rs.getInt("student_order_status")));
     }
+
     private void fillMarriage(ResultSet rs, StudentOrder so) throws SQLException {
         so.setMarriageCertificateId(rs.getString("certificate_id"));
         so.setMarriageDate(rs.getDate("marriage_date").toLocalDate());
         long roId = rs.getLong("register_office_id");
-        RegisterOffice ro = new RegisterOffice(roId,"","");
+        String areaId = rs.getString("r_office_area_id");
+        String name = rs.getString("r_office_name");
+        RegisterOffice ro = new RegisterOffice(roId,areaId,name);
         so.setMarriageOffice(ro);
 
-       // so.setMarriageDate(rs.getDate(""));
-    }
-
-    private void saveChildren(Connection con, StudentOrder so, Long soId) throws SQLException {
-        try(PreparedStatement stmt = con.prepareStatement(INSERT_CHILD)) {
-            for (Child child : so.getChildren()) {
-                stmt.setLong(1,soId);
-                setParaForChild(stmt,child);
-                stmt.addBatch();
-            }
-            stmt.executeBatch();
-        }
-    }
-
-    private void setParamsForAdult(PreparedStatement stmt, int start, Adult adult) throws SQLException {
-        setParamsForPerson(stmt, start, adult);
-        stmt.setString(start+4,adult.getPassportSeria());
-        stmt.setString(start+5,adult.getPassportNumber());
-        stmt.setDate(start+6, Date.valueOf(adult.getIssueDate()));
-        stmt.setLong(start+7, adult.getIssueDepartment().getOfficeId());
-        setParamsForAddress(stmt, start+8, adult);
-        stmt.setLong(start+13,adult.getUnivesity().getUniversityId());
-        stmt.setString(start+14,adult.getStudentId());
-
-    }
-
-    private void setParaForChild(PreparedStatement stmt, Child child) throws SQLException{
-        setParamsForPerson(stmt,2,child);
-        stmt.setString(6, child.getCertificateNumber());
-        stmt.setDate(7,Date.valueOf(child.getIssueDate()));
-        stmt.setLong(8,child.getIssueDepartment().getOfficeId());
-        setParamsForAddress(stmt,9,child);
-    }
-
-    private void setParamsForPerson(PreparedStatement stmt, int start, Person person) throws SQLException {
-        stmt.setString(start, person.getSorName());
-        stmt.setString(start +1, person.getGivenName());
-        stmt.setString(start +2, person.getPatronymic());
-        stmt.setDate(start +3, Date.valueOf(person.getDate0fBirth()));
-    }
-
-    private void setParamsForAddress(PreparedStatement stmt, int start, Person person) throws SQLException {
-        Address h_address = person.getAddress();
-        stmt.setString(start,h_address.getPostCode());
-        stmt.setLong(start +1, h_address.getStreet().getStreetCode());
-        stmt.setString(start +2, h_address.getBuilding());
-        stmt.setString(start +3, h_address.getExtension());
-        stmt.setString(start +4, h_address.getApartment());
+        // so.setMarriageDate(rs.getDate(""));
     }
 }
