@@ -267,7 +267,6 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
                 so.addChild(ch);
             }
         }
-
     }
 
 
