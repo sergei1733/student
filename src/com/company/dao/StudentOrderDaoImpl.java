@@ -271,6 +271,7 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
 
 
     private Adult fillAdult(ResultSet rs, String pref) throws SQLException {
+
         Adult adult = new Adult();
         adult.setSorName(rs.getString(pref + "sur_name"));
         adult.setGivenName(rs.getString(pref + "given_name"));
