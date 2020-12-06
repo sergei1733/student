@@ -3,7 +3,6 @@ package com.company.dao;
 import com.company.config.Config;
 import com.company.studentOrder.domain.*;
 import com.company.studentOrder.exception.DaoException;
-import org.w3c.dom.DOMException;
 
 import java.sql.*;
 import java.time.LocalDate;
